@@ -1,0 +1,187 @@
+Creating Views and Indexes
+
+	What will happen if a unique index is created on a nonunique field?
+    	
+		ERROR - unique index needs to have unique value
+
+	Are the following statements true or false?
+
+        Both views and indexes take up space in the database and therefore must be factored in the planning of the database size.
+
+		TRUE
+
+        If someone updates a table on which a view has been created, the view must have an identical update performed on it to see the same data.
+
+		FALSE
+
+        If you have the disk space and you really want to get your queries smoking, the more indexes the better.
+
+		FALSE
+
+	Is the following CREATE statement correct?
+
+	create view credit_debts as (select all from debts where account_id = 4);
+
+		NO  use * instead of all, don't need ()
+	
+	Is the following CREATE statement correct?
+
+	create unique view debts as select * from debts_tbl;
+
+		NO no unique view
+
+	Is the following CREATE statement correct?
+
+	drop * from view debts;
+
+		NO
+
+	Is the following CREATE statement correct?
+
+	create index id_index on bills (account_id);
+
+		YES
+
+Controlling Transactions
+
+	When nesting transactions, does issuing a ROLLBACK TRANSACTION command cancel the current transaction and roll back the batch of statements into the upper-level transaction? Why or why not?
+
+		NO rollback cancels all transactions in progress
+
+	Can savepoints be used to "save off" portions of a transaction? Why or why not?
+
+		YES transaction can be rolled back to savepoint
+	
+	Can a COMMIT command be used by itself or must it be embedded?
+
+		either can be done
+
+	If you issue the COMMIT command and then discover a mistake, can you still use the ROLLBACK command?
+
+		YES but it won't roll back changes
+
+	Will using a savepoint in the middle of a transaction save all that happened before it automatically?
+
+		NO savepoint only matters if ROLLBACK is done
+
+Database Security
+
+	What is wrong with the following statement?
+
+	GRANT CONNECTION TO DAVID;
+
+		should be CONNECT
+
+	True or False (and why): Dropping a user will cause all objects owned by that user to be dropped as well.
+
+		only if CASCADE statement is used
+
+    	What would happen if you created a table and granted select privileges on the table to public?
+
+		Anyone can SELECT from the table
+
+	Is the following SQL statement correct?
+
+	create user RON identified by RON;
+
+		YES
+
+	Is the following SQL statement correct?
+
+	alter RON identified by RON;
+
+		missing USER in ALTER statement
+
+	If you own a table, who can select from that table?
+
+		Whoever has SELECT privileges
+
+Streamlining SQL Statements for Improved Performance
+
+	What does streamline an SQL statement mean?
+
+		consider best way to set up statement to get data efficiently
+
+	Should tables and their corresponding indexes reside on the same disk?
+
+		NO
+
+	Why is the arrangement of conditions in an SQL statement important?
+
+		the arrangement affects how the stored data is accessed
+
+	What happens during a full-table scan?
+
+		every row in the table is read
+
+	How can you avoid a full-table scan?
+
+		create an index
+
+	What are some common hindrances of general performance?
+
+		limited memory or storage space, not executing transactions, not setting up tables/indexes well
+
+	Make the following SQL statement more readable.
+
+    	SELECT EMPLOYEE.LAST_NAME, EMPLOYEE.FIRST_NAME, EMPLOYEE.MIDDLE_NAME, EMPLOYEE.ADDRESS, EMPLOYEE.PHONE_NUMBER, PAYROLL.SALARY, PAYROLL.POSITION, 		EMPLOYEE.SSN, PAYROLL.START_DATE FROM EMPLOYEE, PAYROLL WHERE EMPLOYEE.SSN = PAYROLL.SSN AND EMPLOYEE.LAST_NAME LIKE 'S%' AND PAYROLL.SALARY > 20000;
+
+	SELECT EMPLOYEE.LAST_NAME, EMPLOYEE.FIRST_NAME, EMPLOYEE.MIDDLE_NAME, 
+		EMPLOYEE.ADDRESS, EMPLOYEE.PHONE_NUMBER, EMPLOYEE.SSN,
+		PAYROLL.SALARY, PAYROLL.POSITION, PAYROLL.START_DATE 
+	FROM EMPLOYEE, PAYROLL 
+	WHERE EMPLOYEE.SSN = PAYROLL.SSN 
+		AND EMPLOYEE.LAST_NAME LIKE 'S%' 
+		AND PAYROLL.SALARY > 20000;
+
+	Rearrange the conditions in the following query to optimize data retrieval time.Use the following statistics (on the tables in their entirety) to determine the order of the conditions:
+
+	593 individuals have the last name SMITH.
+	712 individuals live in INDIANAPOLIS.
+	3,492 individuals are MALE.
+	1,233 individuals earn a salary >= 30,000.
+	5,009 individuals are single.
+	Individualid is the primary key for both tables.
+
+	SELECT M.INDIVIDUAL_NAME, M.ADDRESS, M.CITY, M.STATE, M.ZIP_CODE,
+       		S.SEX, S.MARITAL_STATUS, S.SALARY
+	FROM MAILING_TBL M,
+     		INDIVIDUAL_STAT_TBL S
+	WHERE M.NAME LIKE 'SMITH%'
+  		AND M.CITY = 'INDIANAPOLIS'
+  		AND S.SEX = 'MALE'
+  		AND S.SALARY >= 30000
+  		AND S.MARITAL_STATUS = 'S'
+  		AND M.INDIVIDUAL_ID = S.INDIVIDUAL_ID;
+
+	Individualid is the primary key for both tables.
+	5,009 individuals are single.
+	3,492 individuals are MALE.
+	1,233 individuals earn a salary >= 30,000.
+	712 individuals live in INDIANAPOLIS.
+	593 individuals have the last name SMITH.
+	
+	SELECT M.INDIVIDUAL_NAME, M.ADDRESS, M.CITY, M.STATE, M.ZIP_CODE,
+       		S.SEX, S.MARITAL_STATUS, S.SALARY
+	FROM MAILING_TBL M,
+     		INDIVIDUAL_STAT_TBL S
+	WHERE M.INDIVIDUAL_ID = S.INDIVIDUAL_ID;
+  		AND S.MARITAL_STATUS = 'S'
+  		AND S.SEX = 'MALE'
+  		AND S.SALARY >= 30000
+  		AND M.CITY = 'INDIANAPOLIS'
+  		AND M.NAME LIKE 'SMITH%'
+
+Using Views to Retrieve Useful Information from the Data Dictionary
+
+	What types of information are stored in the data dictionary?
+
+		database design, statistics, objects, security
+
+	How can you use performance statistics?
+
+		Analyze them to improve database design efficiency
+
+	What are some database objects?
+
+		tables, indexes, views
